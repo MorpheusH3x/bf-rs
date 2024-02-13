@@ -45,22 +45,92 @@ enum Op {
     JumpIfNonZero(usize),
 }
 
+
 fn lex(source: &str) -> Vec<Op> {
-    source
-        .chars()
-        .enumerate()
-        .filter_map(|(index, symbol)| match symbol {
-            '<' => Some(Op::Left(0)),
-            '>' => Some(Op::Read(0)),
-            '+' => Some(Op::Inc(0)),
-            '-' => Some(Op::Dec(0)),
-            '.' => Some(Op::Write(0)),
-            ',' => Some(Op::Read(0)),
-            '[' => Some(Op::JumpIfZero(0)),
-            ']' => Some(Op::JumpIfNonZero(0)),
-            _ => None,
-        })
-        .collect()
+    let mut ops = Vec::new();
+    let mut count = 1;
+
+    for (index, symbol) in source.chars().enumerate() {
+        match symbol {
+            '>' => {
+                if let Some(next) = source.chars().nth(index + 1) {
+                    if next == symbol {
+                        count += 1;
+                    } else {
+                        ops.push(Op::Right(count));
+                        count = 1;
+                    }
+                } else {
+                    ops.push(Op::Right(count));
+                }
+            }
+            '<' => {
+                if let Some(next) = source.chars().nth(index + 1) {
+                    if next == symbol {
+                        count += 1;
+                    } else {
+                        ops.push(Op::Left(count));
+                        count = 1;
+                    }
+                } else {
+                    ops.push(Op::Left(count));
+                }
+            }
+            '+' => {
+                if let Some(next) = source.chars().nth(index + 1) {
+                    if next == symbol {
+                        count += 1;
+                    } else {
+                        ops.push(Op::Inc(count));
+                        count = 1;
+                    }
+                } else {
+                    ops.push(Op::Inc(count));
+                }
+            }
+            '-' => {
+                if let Some(next) = source.chars().nth(index + 1) {
+                    if next == symbol {
+                        count += 1;
+                    } else {
+                        ops.push(Op::Dec(count));
+                        count = 1;
+                    }
+                } else {
+                    ops.push(Op::Dec(count));
+                }
+            }
+            '.' => {
+                if let Some(next) = source.chars().nth(index + 1) {
+                    if next == symbol {
+                        count += 1;
+                    } else {
+                        ops.push(Op::Write(count));
+                        count = 1;
+                    }
+                } else {
+                    ops.push(Op::Write(count));
+                }
+            }
+            ',' => {
+                if let Some(next) = source.chars().nth(index + 1) {
+                    if next == symbol {
+                        count += 1;
+                    } else {
+                        ops.push(Op::Read(count));
+                        count = 1;
+                    }
+                } else {
+                    ops.push(Op::Read(count));
+                }
+            }
+            '[' => ops.push(Op::JumpIfZero(0)),
+            ']' => ops.push(Op::JumpIfNonZero(0)),
+            _ => (),
+        }
+    }
+
+    ops
 }
 
 fn main() {
